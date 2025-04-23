@@ -22,16 +22,16 @@ uint8 edge_count = 0;
 uint32 time_high = 0;
 
 /* Ultrasonic sensor configuration structure */
-Ultrasonic_t frontDistanceSensor = { .TRIGGER_PORT = ULTRASONIC_TRIGGER_PORT,
+Ultrasonic_t frontDistanceSensor = { .TRIGGER_PORT = ULTRASONIC_TRIGGER_1_2_PORT,
 									 .TRIGGER_PIN  = ULTRASONIC_FRONT_TRIGGER_PIN,
 									 .ECHO_PORT = ULTRASONIC_ECHO_PORT,
 									 .ECHO_PIN = ULTRASONIC_ECHO_PIN};
 
-Ultrasonic_t leftDistanceSensor = { .TRIGGER_PORT = ULTRASONIC_TRIGGER_PORT,
+Ultrasonic_t leftDistanceSensor = { .TRIGGER_PORT = ULTRASONIC_TRIGGER_1_2_PORT,
 									 .TRIGGER_PIN  = ULTRASONIC_LEFT_TRIGGER_PIN,
 									 .ECHO_PORT = ULTRASONIC_ECHO_PORT,
 									 .ECHO_PIN = ULTRASONIC_ECHO_PIN};
-Ultrasonic_t rightDistanceSensor = { .TRIGGER_PORT = ULTRASONIC_TRIGGER_PORT,
+Ultrasonic_t rightDistanceSensor = { .TRIGGER_PORT = ULTRASONIC_TRIGGER_3_PORT,
 									 .TRIGGER_PIN  = ULTRASONIC_RIGHT_TRIGGER_PIN,
 									 .ECHO_PORT = ULTRASONIC_ECHO_PORT,
 									 .ECHO_PIN = ULTRASONIC_ECHO_PIN};
