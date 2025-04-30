@@ -10,15 +10,6 @@
 
 #include "../../MCAL/std_types.h"
 
-#define ULTRASONIC_TRIGGER_1_2_PORT 		PORTD_ID
-#define ULTRASONIC_TRIGGER_3_PORT 			PORTB_ID
-
-#define ULTRASONIC_ECHO_PORT 			PORTD_ID
-#define ULTRASONIC_ECHO_PIN 			PIN6_ID
-
-#define ULTRASONIC_FRONT_TRIGGER_PIN	PIN4_ID
-#define ULTRASONIC_LEFT_TRIGGER_PIN		PIN5_ID
-#define ULTRASONIC_RIGHT_TRIGGER_PIN	PIN0_ID
 
 
 /* Define an error margin for distance calculation, this value needs calibration */
@@ -32,8 +23,6 @@ typedef struct {
 	uint8 ECHO_PIN :3;
 } Ultrasonic_t;
 
-/* External declaration for ultrasonic sensor configuration */
-extern Ultrasonic_t frontDistanceSensor, leftDistanceSensor, rightDistanceSensor;
 
 /* Function prototypes */
 void Ultrasonic_init(Ultrasonic_t *Usonic); /* Initialize ultrasonic sensor */
