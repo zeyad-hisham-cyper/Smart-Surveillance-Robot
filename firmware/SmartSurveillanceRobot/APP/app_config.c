@@ -1,3 +1,12 @@
+/******************************************************************************
+ *
+ * File Name: app_config.c
+ *
+ * Description: onfiguration and initialization of ultrasonic sensors and DC motors
+ *              used in the Smart Surveillance Robot.
+ * Author: Amr & zeyad
+ *
+ ******************************************************************************/
 #include "app.h"
 
 
@@ -16,6 +25,7 @@ Ultrasonic_t rightDistanceSensor = { .TRIGGER_PORT = ULTRASONIC_TRIGGER_3_PORT,
 									 .ECHO_PORT = ULTRASONIC_ECHO_PORT,
 									 .ECHO_PIN = ULTRASONIC_ECHO_PIN};
 
+/* DC motor configuration structure */
 DcMotor rightMotor = {
 		.DcMotor_DIR_PORT = DCMOTORS_DIR_PORT,
 		.DcMotor_DIR_PINA = DCMOTOR_R_DIR_PINA,
