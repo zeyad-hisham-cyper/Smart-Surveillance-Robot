@@ -8,64 +8,40 @@
  * Author: Zeyad Hisham
  */
 
-#include "../common_macros.h"
-#include "../GPIO/gpio.h"
 #include "ADC.h"
+#include "../common_macros.h"
 #include "avr/io.h"
-#ifdef ADC_INTERRUPT_ENABLE
-#include "avr/interrupt.h"
-#endif
 
-/* ADC object with default reference voltage and prescaler */
-ADC_t ADC_object = { .REF_Volt = ADC_REF_VOLT_AREF, .Pre_scaler = ADC_PRE_SCALER_8 };
+void ADC_init(void) {
+	/* Set reference voltage to internal 2.56V */
+	SET_BIT(ADMUX, REFS0);
+	SET_BIT(ADMUX, REFS1);
 
-#ifdef ADC_INTERRUPT_ENABLE
-/* ADC result variable for interrupt mode */
-volatile uint16 ADC_result = 0;
-
-/* ISR to handle ADC conversion complete interrupt */
-ISR(ADC_vect) {
-	ADC_result = ADC;  /* Store the ADC result */
-}
-#endif
-
-/* Function to initialize the ADC with reference voltage and prescaler */
-void ADC_init(ADC_t *ADC_OBJECT) {
-	/* Set reference voltage */
-	ADMUX = (ADMUX & 0x3F) | (ADC_OBJECT->REF_Volt);
+	/* Right Adjust Result */
+	CLEAR_BIT(ADMUX, ADLAR);
 
 	/* Enable ADC */
 	SET_BIT(ADCSRA, ADEN);
 
-	/* Set the prescaler value */
-	ADCSRA = (ADCSRA & 0xF8) | (ADC_OBJECT->Pre_scaler);
-
-#ifdef ADC_INTERRUPT_ENABLE
-	/* Enable ADC interrupt and global interrupt */
-	SET_BIT(ADCSRA, ADIE);
-	sei();
-#endif
+	/* Set ADC pre-scaler to 128 */
+	SET_BIT(ADCSRA, ADPS0);
+	SET_BIT(ADCSRA, ADPS1);
+	SET_BIT(ADCSRA, ADPS2);
 }
 
-/* Function to read the ADC value from a specific channel */
-uint16 ADC_readChannel(uint8 ch_num) {
-	/* Select the ADC channel */
-	ADMUX = (ADMUX & 0xE0) | (ch_num & 0x1F);
+uint16 ADC_readChannel(ADC_Channel channel) {
+	/* Clear the previous channel selection and set the required channel */
+	ADMUX = (ADMUX & 0xE0) | (channel & 0x07);
 
 	/* Start conversion */
 	SET_BIT(ADCSRA, ADSC);
 
-#ifdef ADC_INTERRUPT_ENABLE
-	/* Return the result stored by the interrupt */
-	return ADC_result;
-#else
-	/* Wait until conversion is complete */
-	while (GET_BIT(ADCSRA, ADIF) == 0);
+	/* Wait for conversion to complete (ADIF = 1) */
+	while (BIT_IS_CLEAR(ADCSRA, ADIF));
 
-	/* Clear the ADC interrupt flag */
+	/* Clear ADIF by writing '1' */
 	SET_BIT(ADCSRA, ADIF);
 
-	/* Return the ADC result */
+	/* Return the digital result */
 	return ADC;
-#endif
 }

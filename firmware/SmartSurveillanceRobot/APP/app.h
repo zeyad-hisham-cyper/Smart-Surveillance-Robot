@@ -1,96 +1,152 @@
 /******************************************************************************
  *
+ * Module: Application
+ *
  * File Name: app.h
  *
- * Description:Application layer header for the Smart Surveillance Robot.
- *              Defines macros, data types, and function prototypes.
+ * Description: Application layer header for the Smart Surveillance Robot.
+ *              Contains macro definitions, type declarations, and function
+ *              prototypes for system initialization and main loop control.
  *
- * Author: Amr & zeyad
+ * Author: Amr & Zeyad Hisham
  *
  ******************************************************************************/
-// Include necessary headers from MCAL and HAL layers
-#include "../MCAL/GPIO/gpio.h"         // GPIO driver for digital pin control
-#include "../MCAL/PWM/PWM.h"           // PWM driver for motor speed control
-#include "../HAL/LCD/LCD.h"            // LCD driver for display output
-#include "../HAL/Ultrasonic/Ultrasonic.h"  // Ultrasonic sensor driver for obstacle detection
-#include "../HAL/DcMotor/Motor.h"      // DC Motor driver for robot movement
+
+#ifndef APP_H_
+#define APP_H_
+
+/*******************************************************************************
+ *                              Includes                                       *
+ ******************************************************************************/
+
+#include "../MCAL/GPIO/gpio.h"
+#include "../MCAL/ADC/ADC.h"
+#include "../HAL/LCD/LCD.h"
+#include "../HAL/Ultrasonic/Ultrasonic.h"
+#include "../HAL/DcMotor/Motor.h"
 #include "../HAL/FlameSensor/Flame_Sensor.h"
 #include "../HAL/LM35/lm35_sensor.h"
 #include "../HAL/LDR/LDR.h"
 #include "../HAL/LED/LED.h"
 #include "../HAL/Buzzer/BUZZER.h"
-#include <util/delay.h>                // AVR delay utility for timing
+#include "../HAL/MQ2/MQ2.h"
+#include <util/delay.h>
 
-// Define the time in milliseconds to switch between ultrasonic sensors
-#define SENSOR_SWITCHING_TIME 8
+/*******************************************************************************
+ *                                Definitions                                  *
+ ******************************************************************************/
 
-// Macro to convert string literals to LCD-compatible string format
-#define LCD_STRING(str) ((const uint8 *)(str))
+#define SENSOR_SWITCHING_TIME 8  /* Time (ms) to switch between ultrasonic sensors */
 
-// Port definitions for ultrasonic sensor trigger pins
-#define ULTRASONIC_TRIGGER_1_2_PORT PORTD_ID  // Trigger port for front and left sensors
-#define ULTRASONIC_TRIGGER_3_PORT    PORTB_ID // Trigger port for right sensor
+#define LCD_STRING(str) ((const uint8 *)(str)) /* Macro to cast strings to LCD-compatible format */
 
-// Port and pin definitions for ultrasonic echo (common for all sensors)
-#define ULTRASONIC_ECHO_PORT PORTD_ID // Echo pin port
-#define ULTRASONIC_ECHO_PIN  PIN6_ID  // Echo pin number
+/* Ultrasonic sensor trigger pin configurations */
+#define ULTRASONIC_TRIGGER_1_2_PORT PORTD_ID
+#define ULTRASONIC_TRIGGER_3_PORT   PORTB_ID
 
-// Specific trigger pin assignments for each direction
-#define ULTRASONIC_FRONT_TRIGGER_PIN PIN4_ID  // Front sensor trigger
-#define ULTRASONIC_LEFT_TRIGGER_PIN  PIN5_ID  // Left sensor trigger
-#define ULTRASONIC_RIGHT_TRIGGER_PIN PIN0_ID  // Right sensor trigger
+/* Ultrasonic sensor echo pin configuration (shared among sensors) */
+#define ULTRASONIC_ECHO_PORT PORTD_ID
+#define ULTRASONIC_ECHO_PIN  PIN6_ID
 
-// Motor direction control pin definitions
-#define DCMOTORS_DIR_PORT   PORTC_ID  // Motor direction control port
-#define DCMOTOR_R_DIR_PINA  PIN2_ID   // Right motor direction A pin
-#define DCMOTOR_R_DIR_PINB  PIN3_ID   // Right motor direction B pin
-#define DCMOTOR_L_DIR_PINA  PIN4_ID   // Left motor direction A pin
-#define DCMOTOR_L_DIR_PINB  PIN5_ID   // Left motor direction B pin
+/* Specific ultrasonic trigger pin mapping */
+#define ULTRASONIC_FRONT_TRIGGER_PIN PIN4_ID
+#define ULTRASONIC_LEFT_TRIGGER_PIN  PIN5_ID
+#define ULTRASONIC_RIGHT_TRIGGER_PIN PIN0_ID
 
-// PWM pin configuration for motor speed control
-#define DCMOTOR_PWM_PORT PORTB_ID     // PWM port
-#define DCMOTOR_PWM_PIN  PIN3_ID      // PWM pin for motor speed
+/* DC motor direction control pins */
+#define DCMOTORS_DIR_PORT    PORTC_ID
+#define DCMOTOR_R_DIR_PINA   PIN2_ID
+#define DCMOTOR_R_DIR_PINB   PIN3_ID
+#define DCMOTOR_L_DIR_PINA   PIN4_ID
+#define DCMOTOR_L_DIR_PINB   PIN5_ID
 
-// Default motor speed percentage (0 to 100)
-#define DCMOTOR_SPEED 50
+/* PWM pin configuration for speed control */
+#define DCMOTOR_PWM_PORT     PORTB_ID
+#define DCMOTOR_PWM_PIN      PIN3_ID
+#define DCMOTOR_SPEED        50 /* Default speed percentage */
 
-// Enum for possible movement directions
+/* Movement direction enum */
 typedef enum {
-	FORWARD,  // Move forward
-	RIGHT,    // Turn right
-	LEFT,     // Turn left
-	STOP      // Stop movement
+	FORWARD,
+	RIGHT,
+	LEFT,
+	STOP
 } Direction_t;
 
-
+/* Flame sensor configuration */
 #define FLAME_PORT PORTD_ID
 #define FLAME_PIN  PIN3_ID
 
+/* LM35 temperature sensor ADC channel */
 #define TEMPERATURE_SENSOR_CHANNEL 1
+
+/* LDR sensor ADC channel */
 #define LDR_CHANNEL 2
 
+/* Green LED configuration */
 #define GREEN_LED_PORT PORTA_ID
-#define GREEN_LED_PIN PIN4_ID
+#define GREEN_LED_PIN  PIN4_ID
 
-#define RED_LED_PORT PORTA_ID
-#define RED_LED_PIN PIN3_ID
+/* Red LED configuration */
+#define RED_LED_PORT   PORTA_ID
+#define RED_LED_PIN    PIN3_ID
 
-#define BUZZER_PORT PORTA_ID
-#define BUZZER_PIN  PIN6_ID
+/* Buzzer configuration */
+#define BUZZER_PORT    PORTA_ID
+#define BUZZER_PIN     PIN6_ID
 
-// External declarations for sensor and motor instances (defined in app.c)
-extern Ultrasonic_t frontDistanceSensor, leftDistanceSensor,
-		rightDistanceSensor;
+/* MQ-2 gas sensor configuration */
+#define MQ2_PORT       PORTA_ID
+#define MQ2_CHANNEL    PIN0_ID
+
+/*******************************************************************************
+ *                           External Variables                                *
+ ******************************************************************************/
+
+/* Ultrasonic sensor objects */
+extern Ultrasonic_t frontDistanceSensor, leftDistanceSensor, rightDistanceSensor;
+
+/* DC motor instances */
 extern DcMotor rightMotor, leftMotor;
 
+/* Flame sensor instance */
 extern FlameSensor flameSensor;
+
+/* LM35 temperature sensor instance */
 extern LM35 tempSensor;
+
+/* LDR sensor instance */
 extern LDR LdrSensor;
-extern LED_ID Green;
-extern LED_ID Red;
+
+/* LED instances */
+extern LED_ID Green, Red;
+
+/* Buzzer instance */
 extern BUZZER Alarm;
-// Function to initialize all components and peripherals
+
+/* MQ-2 gas sensor configuration */
+extern MQ2_ConfigType gasSensor;
+
+/*******************************************************************************
+ *                      Functions Prototypes                                   *
+ ******************************************************************************/
+
+/*
+ * Description :
+ * Initializes all hardware modules used in the application including:
+ * sensors (ultrasonic, flame, gas, light, temperature),
+ * actuators (DC motors, buzzer, LEDs),
+ * and user interfaces (LCD).
+ */
 void app_init(void);
 
-// Function that runs the main application logic
+/*
+ * Description :
+ * Main application function responsible for:
+ * - Reading sensor values
+ * - Making decisions based on environment
+ * - Controlling actuators and displaying information
+ */
 void app_run(void);
+
+#endif /* APP_H_ */

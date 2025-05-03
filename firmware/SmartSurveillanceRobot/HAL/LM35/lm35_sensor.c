@@ -27,8 +27,7 @@ uint8 LM35_getTemperature(LM35 channel_num) {
 	adc_value = ADC_readChannel(channel_num);
 
 	/* Calculate the temperature from the ADC value*/
-	temp_value =
-			(uint8) (((uint32) adc_value * SENSOR_MAX_TEMPERATURE
+	temp_value = (uint8) (((uint32) adc_value * SENSOR_MAX_TEMPERATURE
 					* ADC_REF_VOLT_VALUE)
 					/ (ADC_MAXIMUM_VALUE * SENSOR_MAX_VOLT_VALUE));
 
