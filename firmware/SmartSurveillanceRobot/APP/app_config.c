@@ -39,3 +39,22 @@ DcMotor leftMotor = {
 		.DcMotor_DIR_PINB = DCMOTOR_L_DIR_PINB,
 		.DCMotor_EN_PORT = DCMOTOR_PWM_PORT,
 		.DcMotor_EN_PIN = DCMOTOR_PWM_PIN};
+
+/* Initialize the Flame Sensor object */
+FlameSensor flameSensor = { .PORT = FLAME_PORT, .PIN = FLAME_PORT };
+
+LM35 tempSensor = TEMPERATURE_SENSOR_CHANNEL;
+
+LDR LdrSensor = LDR_CHANNEL;
+
+/*
+ * Define LEDS Parameters
+ */
+LED_ID Green = { .LED_PORT = GREEN_LED_PORT, .LED_PIN = GREEN_LED_PIN, ACTIVE_HIGH };
+LED_ID Red = { .LED_PORT = RED_LED_PORT, .LED_PIN = RED_LED_PIN, ACTIVE_HIGH };
+
+
+/* Initialize the buzzer object with default values */
+BUZZER Alarm = { .PORT = BUZZER_PORT, .PIN = BUZZER_PIN, .state = BUZZER_ACTIVE_HIGH };
+
+

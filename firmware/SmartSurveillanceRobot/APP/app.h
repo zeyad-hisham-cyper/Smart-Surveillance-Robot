@@ -14,7 +14,11 @@
 #include "../HAL/LCD/LCD.h"            // LCD driver for display output
 #include "../HAL/Ultrasonic/Ultrasonic.h"  // Ultrasonic sensor driver for obstacle detection
 #include "../HAL/DcMotor/Motor.h"      // DC Motor driver for robot movement
-
+#include "../HAL/FlameSensor/Flame_Sensor.h"
+#include "../HAL/LM35/lm35_sensor.h"
+#include "../HAL/LDR/LDR.h"
+#include "../HAL/LED/LED.h"
+#include "../HAL/Buzzer/BUZZER.h"
 #include <util/delay.h>                // AVR delay utility for timing
 
 // Define the time in milliseconds to switch between ultrasonic sensors
@@ -58,11 +62,33 @@ typedef enum {
 	STOP      // Stop movement
 } Direction_t;
 
+
+#define FLAME_PORT PORTD_ID
+#define FLAME_PIN  PIN3_ID
+
+#define TEMPERATURE_SENSOR_CHANNEL 1
+#define LDR_CHANNEL 2
+
+#define GREEN_LED_PORT PORTA_ID
+#define GREEN_LED_PIN PIN4_ID
+
+#define RED_LED_PORT PORTA_ID
+#define RED_LED_PIN PIN3_ID
+
+#define BUZZER_PORT PORTA_ID
+#define BUZZER_PIN  PIN6_ID
+
 // External declarations for sensor and motor instances (defined in app.c)
 extern Ultrasonic_t frontDistanceSensor, leftDistanceSensor,
 		rightDistanceSensor;
 extern DcMotor rightMotor, leftMotor;
 
+extern FlameSensor flameSensor;
+extern LM35 tempSensor;
+extern LDR LdrSensor;
+extern LED_ID Green;
+extern LED_ID Red;
+extern BUZZER Alarm;
 // Function to initialize all components and peripherals
 void app_init(void);
 
