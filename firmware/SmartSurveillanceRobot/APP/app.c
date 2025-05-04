@@ -64,10 +64,9 @@ static void Robot_Left(void);
  */
 static void Robot_STOP(void);
 
-
 static void APP_scanEnvironment(void);
 static void App_DisplayReadings(void);
-
+static void APP_handleAlerts(void);
 /*******************************************************************************
  *                           Application Initialization                        *
  ******************************************************************************/
@@ -77,29 +76,36 @@ void app_init(void) {
 	LCD_init();
 	ADC_init();
 
-	/* Initialize the ultrasonic sensors (front, left, right) */
+	/* Initialize the ultrasonic sensors */
 	Ultrasonic_init(&frontDistanceSensor);
 	Ultrasonic_init(&leftDistanceSensor);
 	Ultrasonic_init(&rightDistanceSensor);
 
-	/* Initialize the DC motors (right and left) */
+	/* Initialize the DC motors */
 	DcMotor_init(&rightMotor);
 	DcMotor_init(&leftMotor);
 
+	/* Initialize Sensors and Indicators */
 	FlameSensor_init(&flameSensor);
 	MQ2_init(&gasSensor);
-}
+	Buzzer_init(&Alarm);
+	LED_init(&Red);
+	LED_init(&Green);
+	/* Display welcome message */
+	LCD_DisplayStringRowColumn(0, 0, LCD_STRING("   Smart Robot   "));
+	LCD_DisplayStringRowColumn(1, 0, LCD_STRING(" Initializing... "));
+	_delay_ms(1000);
 
+}
 
 uint8 tempValue = 0;
 uint8 gasValue = 0;
 uint8 flameStatus = 0;
 uint8 lightLevel = 0;
 
-#define TEMP_THRESHOLD   45
-/* #define GAS_THRESHOLD    400 */
-#define LIGHT_THRESHOLD  500
-
+#define TEMP_THRESHOLD   30
+#define STOPING_TIME_MS	 1000
+#define LIGHT_THRESHOLD  15
 
 /*******************************************************************************
  *                           Main Application Logic                            *
@@ -112,16 +118,14 @@ void app_run(void) {
 		/* Read distance values from the ultrasonic sensors */
 		frontDistance = App_ReadUltrasonic(&frontDistanceSensor);
 		rightDistance = App_ReadUltrasonic(&rightDistanceSensor);
-		leftDistance  = App_ReadUltrasonic(&leftDistanceSensor);
-
-		/*
-		*App_DisplayDistances(frontDistance, rightDistance, leftDistance);
-		*/
+		leftDistance = App_ReadUltrasonic(&leftDistanceSensor);
+		//App_DisplayDistances(frontDistance, rightDistance, leftDistance);
 
 		/* Determine optimal movement direction and execute it */
 		Robot_MovementControl(App_getMaxDistance(frontDistance, rightDistance, leftDistance));
-		APP_scanEnvironment();
 		App_DisplayReadings();
+		APP_scanEnvironment();
+		APP_handleAlerts();
 	}
 }
 
@@ -190,19 +194,19 @@ static Direction_t App_getMaxDistance(uint8 front, uint8 right, uint8 left) {
 static void Robot_MovementControl(Direction_t direction) {
 	switch (direction) {
 	case FORWARD:
-		Robot_Forward();  /* Move forward */
+		Robot_Forward(); /* Move forward */
 		break;
 	case RIGHT:
-		Robot_Right();    /* Turn right */
+		Robot_Right(); /* Turn right */
 		break;
 	case LEFT:
-		Robot_Left();     /* Turn left */
+		Robot_Left(); /* Turn left */
 		break;
 	case STOP:
-		Robot_STOP();     /* Stop movement */
+		Robot_STOP(); /* Stop movement */
 		break;
 	default:
-		Robot_Forward();  /* Default: move forward */
+		Robot_Forward(); /* Default: move forward */
 		break;
 	}
 }
@@ -214,19 +218,19 @@ static void Robot_MovementControl(Direction_t direction) {
 /* Move both motors forward */
 static void Robot_Forward(void) {
 	DcMotor_Rotate(&rightMotor, Anti_Clock_Wise, DCMOTOR_SPEED);
-	DcMotor_Rotate(&leftMotor,  Anti_Clock_Wise, DCMOTOR_SPEED);
+	DcMotor_Rotate(&leftMotor, Anti_Clock_Wise, DCMOTOR_SPEED);
 }
 
 /* Turn right by reversing the right motor */
 static void Robot_Right(void) {
 	DcMotor_Rotate(&rightMotor, Clock_Wise, DCMOTOR_SPEED);
-	DcMotor_Rotate(&leftMotor,  Anti_Clock_Wise, DCMOTOR_SPEED);
+	DcMotor_Rotate(&leftMotor, Anti_Clock_Wise, DCMOTOR_SPEED);
 }
 
 /* Turn left by reversing the left motor */
 static void Robot_Left(void) {
 	DcMotor_Rotate(&rightMotor, Anti_Clock_Wise, DCMOTOR_SPEED);
-	DcMotor_Rotate(&leftMotor,  Clock_Wise, DCMOTOR_SPEED);
+	DcMotor_Rotate(&leftMotor, Clock_Wise, DCMOTOR_SPEED);
 }
 
 /* Stop both motors */
@@ -238,25 +242,94 @@ static void Robot_STOP(void) {
 /*******************************************************************************
  *                          Environment Functions                              *
  ******************************************************************************/
-static void APP_scanEnvironment(void){
+
+/*
+ * Function: App_DisplayReadings
+ *
+ * Description:
+ * 		Read all environment sensors and reset alerts
+ * 		Reset all alarms and indicators
+ */
+static void APP_scanEnvironment(void) {
 	tempValue = LM35_getTemperature(tempSensor);
 	gasValue = MQ2_getGasLevel(&gasSensor);
 	flameStatus = FlameSensor_getValue(&flameSensor);
 	lightLevel = LDR_getLightIntensity(LdrSensor);
+
+	/* Reset alarms and indicators */
+
+	LED_off(&Red);
+	Buzzer_off(&Alarm);
+	LED_on(&Green);
 }
+
+/*
+ * Function: App_DisplayReadings
+ *
+ * Description:
+ * 		Display all sensors data on the LCD
+ */
 
 static void App_DisplayReadings(void) {
-    LCD_MoveCursor(0, 0);
-    LCD_DisplayString(LCD_STRING("T: "));
-    LCD_intgerToString(tempValue);
-    LCD_DisplayString(LCD_STRING("C G:"));
-    LCD_intgerToString(gasValue);
+	LCD_MoveCursor(0, 0);
+	LCD_DisplayString(LCD_STRING("T:"));
+	LCD_intgerToString(tempValue);
+	LCD_DisplayString(LCD_STRING(" G:"));
+	LCD_intgerToString(gasValue);
+	LCD_DisplayString(LCD_STRING(" |System"));
 
-    LCD_MoveCursor(1, 0);
-    LCD_DisplayString(LCD_STRING("L:"));
-    LCD_intgerToString(lightLevel);
-
-    LCD_DisplayString(LCD_STRING(" F:"));
-    LCD_intgerToString(flameStatus);
+	LCD_MoveCursor(1, 0);
+	LCD_DisplayString(LCD_STRING("L:"));
+	LCD_intgerToString(lightLevel);
+	LCD_DisplayString(LCD_STRING(" F:"));
+	LCD_intgerToString(flameStatus);
+	LCD_DisplayString(LCD_STRING(" |Normal"));
 }
+/*
+ * Function: APP_handleAlerts
+ *
+ * Description:
+ * Handles multiple alert scenarios:
+ * 1. Fire: high temperature, gas leak, and flame detected.
+ * 2. High Temperature Only: high temperature, no gas, no flame.
+ * 3. Gas Leak Only: normal temperature, gas leak, no flame.
+ * 4. Normal State: no alert condition detected.
+ */
+static void APP_handleAlerts(void) {
+	/* Reset indicators to safe state */
+	LED_off(&Red);
+	Buzzer_off(&Alarm);
+	LED_on(&Green);
 
+	/* Case 1: Fire condition */
+	if ((tempValue > TEMP_THRESHOLD) && gasValue && flameStatus) {
+		LCD_DisplayStringRowColumn(0, 0, LCD_STRING("!!! ALERT !!!   "));
+		LCD_DisplayStringRowColumn(1, 0, LCD_STRING("Fire Detected!  "));
+		LED_on(&Red);
+		LED_off(&Green);
+		Buzzer_on(&Alarm);
+		Robot_STOP();
+		_delay_ms(STOPING_TIME_MS);
+	}
+
+	/* Case 2: High Temperature Only */
+	else if ((tempValue > TEMP_THRESHOLD) && !gasValue && !flameStatus) {
+		LCD_DisplayStringRowColumn(0, 0, LCD_STRING("High Temp!!     "));
+		LCD_DisplayStringRowColumn(1, 0, LCD_STRING("Check Cooling   "));
+		LED_on(&Red);
+		LED_off(&Green);
+		Buzzer_on(&Alarm);
+		_delay_ms(STOPING_TIME_MS);
+	}
+
+	/* Case 3: Gas Leak Only */
+	else if ((tempValue <= TEMP_THRESHOLD) && gasValue && !flameStatus) {
+		LCD_DisplayStringRowColumn(0, 0, LCD_STRING("!! GAS LEAK !!  "));
+		LCD_DisplayStringRowColumn(1, 0, LCD_STRING("Ventilate Area  "));
+		LED_on(&Red);
+		LED_off(&Green);
+		Buzzer_on(&Alarm);
+		Robot_STOP();
+		_delay_ms(STOPING_TIME_MS);
+	}
+}

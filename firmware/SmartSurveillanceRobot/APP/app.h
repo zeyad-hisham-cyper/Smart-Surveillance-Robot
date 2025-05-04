@@ -36,7 +36,8 @@
  *                                Definitions                                  *
  ******************************************************************************/
 
-#define SENSOR_SWITCHING_TIME 8  /* Time (ms) to switch between ultrasonic sensors */
+
+#define SENSOR_SWITCHING_TIME 8 /* Time (ms) to switch between ultrasonic sensors */
 
 #define LCD_STRING(str) ((const uint8 *)(str)) /* Macro to cast strings to LCD-compatible format */
 

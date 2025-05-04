@@ -36,15 +36,28 @@ void Ultrasonic_Trigger(Ultrasonic_t *Usonic) {
 	GPIO_writePin(Usonic->TRIGGER_PORT, Usonic->TRIGGER_PIN, LOGIC_LOW); /* clear the trigger pin */
 }
 
-/* Read the distance measured by the ultrasonic sensor */
-uint16 Ultrasonic_readDistance(Ultrasonic_t *Usonic) {
-	Ultrasonic_Trigger(Usonic); /* Trigger the sensor */
-	if (edge_count == 2) { /* Check if both edges have been captured */
-		edge_count = 0; /* Reset edge count */
-		return ((time_high + ERROR_MARGIN) * 0.008575); /* Calculate and return distance */
-	}
-}
 
+uint16 Ultrasonic_readDistance(Ultrasonic_t *Usonic) {
+	Ultrasonic_Trigger(Usonic);  /* Send 10µs trigger pulse */
+
+	/* Wait for echo with timeout */
+	uint16 timeout = 0;
+	while (edge_count < 2 && timeout < ULTRASONIC_TIMEOUT_MS) {
+		_delay_ms(1);
+		timeout++;
+	}
+
+	if (edge_count < 2) {
+		/* Echo not received — possibly out of range or blocked */
+		edge_count = 0;
+		return 0; /* Indicate failure */
+	}
+
+	edge_count = 0; /* Reset for next reading */
+
+	/* Convert time_high (µs) to distance (cm) */
+	return (uint16)((time_high + ERROR_MARGIN) * SPEED_CONVERSION_CM);
+}
 /* Handle the edge detection and timing for the ultrasonic sensor */
 void Ultrasonic_edgeProcessing(void) {
 	edge_count++; /* Increment edge count */

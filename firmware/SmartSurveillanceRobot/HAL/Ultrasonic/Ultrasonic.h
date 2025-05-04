@@ -13,7 +13,9 @@
 
 
 /* Define an error margin for distance calculation, this value needs calibration */
-#define ERROR_MARGIN 95
+#define ERROR_MARGIN 50
+#define ULTRASONIC_TIMEOUT_MS 40  /* Timeout to avoid hanging */
+#define SPEED_CONVERSION_CM ((float)0.008575)  /* Pulse to cm conversion */
 
 /* Structure to hold ultrasonic sensor pin configurations */
 typedef struct {
