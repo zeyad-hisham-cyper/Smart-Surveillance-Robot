@@ -36,7 +36,6 @@
  *                                Definitions                                  *
  ******************************************************************************/
 
-
 #define SENSOR_SWITCHING_TIME 8 /* Time (ms) to switch between ultrasonic sensors */
 
 #define LCD_STRING(str) ((const uint8 *)(str)) /* Macro to cast strings to LCD-compatible format */
@@ -59,7 +58,7 @@
 #define DCMOTOR_R_DIR_PINA   PIN2_ID
 #define DCMOTOR_R_DIR_PINB   PIN3_ID
 #define DCMOTOR_L_DIR_PINA   PIN4_ID
-#define DCMOTOR_L_DIR_PINB   PIN5_ID
+#define DCMOTOR_L_DIR_PINB   PIN6_ID
 
 /* PWM pin configuration for speed control */
 #define DCMOTOR_PWM_PORT     PORTB_ID
@@ -68,10 +67,7 @@
 
 /* Movement direction enum */
 typedef enum {
-	FORWARD,
-	RIGHT,
-	LEFT,
-	STOP
+	FORWARD, RIGHT, LEFT, STOP
 } Direction_t;
 
 /* Flame sensor configuration */
@@ -79,33 +75,34 @@ typedef enum {
 #define FLAME_PIN  PIN3_ID
 
 /* LM35 temperature sensor ADC channel */
-#define TEMPERATURE_SENSOR_CHANNEL 1
+#define TEMPERATURE_SENSOR_CHANNEL 0
 
 /* LDR sensor ADC channel */
-#define LDR_CHANNEL 2
+#define LDR_CHANNEL 7
 
 /* Green LED configuration */
-#define GREEN_LED_PORT PORTA_ID
-#define GREEN_LED_PIN  PIN4_ID
+#define GREEN_LED_PORT PORTC_ID
+#define GREEN_LED_PIN  PIN1_ID
 
 /* Red LED configuration */
-#define RED_LED_PORT   PORTA_ID
-#define RED_LED_PIN    PIN3_ID
+#define RED_LED_PORT   PORTC_ID
+#define RED_LED_PIN    PIN0_ID
 
 /* Buzzer configuration */
-#define BUZZER_PORT    PORTA_ID
-#define BUZZER_PIN     PIN6_ID
+#define BUZZER_PORT    PORTC_ID
+#define BUZZER_PIN     PIN5_ID
 
 /* MQ-2 gas sensor configuration */
-#define MQ2_PORT       PORTA_ID
-#define MQ2_CHANNEL    PIN0_ID
+#define MQ2_PORT       PORTB_ID
+#define MQ2_CHANNEL    PIN1_ID
 
 /*******************************************************************************
  *                           External Variables                                *
  ******************************************************************************/
 
 /* Ultrasonic sensor objects */
-extern Ultrasonic_t frontDistanceSensor, leftDistanceSensor, rightDistanceSensor;
+extern Ultrasonic_t frontDistanceSensor, leftDistanceSensor,
+		rightDistanceSensor;
 
 /* DC motor instances */
 extern DcMotor rightMotor, leftMotor;

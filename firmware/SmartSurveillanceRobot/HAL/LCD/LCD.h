@@ -18,20 +18,20 @@
 
 #endif
 
-#define LCD_RS_PORT PORTB_ID
+#define LCD_RS_PORT PORTA_ID
 #define LCD_RS_Pin PIN1_ID
 
-#define LCD_ENABLE_PORT PORTB_ID
+#define LCD_ENABLE_PORT PORTA_ID
 #define LCD_ENABLE_PIN PIN2_ID
 
-#define LCD_DATA_PORT PORTB_ID
+#define LCD_DATA_PORT PORTA_ID
 
 #if (LCD_DATA_BITS_MODE == 4)
 
-#define LCD_DB4_PIN                 PIN4_ID
-#define LCD_DB5_PIN                 PIN5_ID
-#define LCD_DB6_PIN                 PIN6_ID
-#define LCD_DB7_PIN                 PIN7_ID
+#define LCD_DB4_PIN                 PIN3_ID
+#define LCD_DB5_PIN                 PIN4_ID
+#define LCD_DB6_PIN                 PIN5_ID
+#define LCD_DB7_PIN                 PIN6_ID
 
 #endif
 
