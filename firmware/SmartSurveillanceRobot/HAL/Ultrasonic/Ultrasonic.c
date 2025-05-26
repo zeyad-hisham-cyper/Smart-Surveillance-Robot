@@ -24,10 +24,15 @@ uint32 time_high = 0;
 
 /* Initialize the ultrasonic sensor */
 void Ultrasonic_init(Ultrasonic_t *Usonic) {
-	ICU_init(&ICU_config); /* Initialize ICU with configuration */
-	ICU_setCallBack(Ultrasonic_edgeProcessing); /* Set callback for edge processing */
-	GPIO_setupPinDirection(Usonic->TRIGGER_PORT, Usonic->TRIGGER_PIN, PIN_OUTPUT); /* Set trigger pin as output */
+    static uint8 initialized = 0;
+    if (!initialized) {
+        ICU_init(&ICU_config);
+        ICU_setCallBack(Ultrasonic_edgeProcessing);
+        initialized = 1;
+    }
+    GPIO_setupPinDirection(Usonic->TRIGGER_PORT, Usonic->TRIGGER_PIN, PIN_OUTPUT);
 }
+
 
 /* Send trigger pulse to the ultrasonic sensor for 10 us */
 void Ultrasonic_Trigger(Ultrasonic_t *Usonic) {

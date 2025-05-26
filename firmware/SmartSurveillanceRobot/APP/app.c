@@ -75,7 +75,7 @@ void app_init(void) {
 	/* Initialize the LCD display */
 	LCD_init();
 	ADC_init();
-
+	UART_init(9600);
 	/* Initialize the ultrasonic sensors */
 	Ultrasonic_init(&frontDistanceSensor);
 	Ultrasonic_init(&leftDistanceSensor);
@@ -95,7 +95,7 @@ void app_init(void) {
 	LCD_DisplayStringRowColumn(0, 0, LCD_STRING("   Smart Robot   "));
 	LCD_DisplayStringRowColumn(1, 0, LCD_STRING(" Initializing... "));
 	_delay_ms(1000);
-
+	LCD_clearScreen();
 }
 
 uint8 tempValue = 0;
@@ -103,9 +103,11 @@ uint8 gasValue = 0;
 uint8 flameStatus = 0;
 uint8 lightLevel = 0;
 
-#define TEMP_THRESHOLD   30
+#define TEMP_THRESHOLD   35
 #define STOPING_TIME_MS	 1000
 #define LIGHT_THRESHOLD  15
+#define READY 0xAA
+#define DONE 0xFF
 
 /*******************************************************************************
  *                           Main Application Logic                            *
@@ -119,11 +121,12 @@ void app_run(void) {
 		frontDistance = App_ReadUltrasonic(&frontDistanceSensor);
 		rightDistance = App_ReadUltrasonic(&rightDistanceSensor);
 		leftDistance = App_ReadUltrasonic(&leftDistanceSensor);
-		//App_DisplayDistances(frontDistance, rightDistance, leftDistance);
+		App_DisplayDistances(frontDistance, rightDistance, leftDistance);
 
 		/* Determine optimal movement direction and execute it */
-		Robot_MovementControl(App_getMaxDistance(frontDistance, rightDistance, leftDistance));
-		App_DisplayReadings();
+		Robot_MovementControl(
+				App_getMaxDistance(frontDistance, rightDistance, leftDistance));
+		//App_DisplayReadings();
 		APP_scanEnvironment();
 		APP_handleAlerts();
 	}
@@ -252,8 +255,11 @@ static void Robot_STOP(void) {
  */
 static void APP_scanEnvironment(void) {
 	tempValue = LM35_getTemperature(tempSensor);
+	UART_sendByte(tempValue);
 	gasValue = MQ2_getGasLevel(&gasSensor);
+	UART_sendByte(gasValue);
 	flameStatus = FlameSensor_getValue(&flameSensor);
+	UART_sendByte(flameStatus);
 	lightLevel = LDR_getLightIntensity(LdrSensor);
 
 	/* Reset alarms and indicators */
@@ -310,6 +316,7 @@ static void APP_handleAlerts(void) {
 		Buzzer_on(&Alarm);
 		Robot_STOP();
 		_delay_ms(STOPING_TIME_MS);
+		LCD_clearScreen();
 	}
 
 	/* Case 2: High Temperature Only */
@@ -320,6 +327,7 @@ static void APP_handleAlerts(void) {
 		LED_off(&Green);
 		Buzzer_on(&Alarm);
 		_delay_ms(STOPING_TIME_MS);
+		LCD_clearScreen();
 	}
 
 	/* Case 3: Gas Leak Only */
@@ -331,5 +339,24 @@ static void APP_handleAlerts(void) {
 		Buzzer_on(&Alarm);
 		Robot_STOP();
 		_delay_ms(STOPING_TIME_MS);
+		LCD_clearScreen();
+	}
+}
+uint8 recieve_Byte(void) {
+	uint8 byte;
+	while (UART_recieveByte() != READY) {
+	}
+	UART_sendByte(READY);
+	byte = UART_recieveByte();
+	UART_sendByte(DONE);
+	return byte;
+}
+
+void send_Byte(uint8 byte) {
+	UART_sendByte(READY);
+	while (UART_recieveByte() != READY) {
+	}
+	UART_sendByte(byte);
+	while (UART_recieveByte() != DONE) {
 	}
 }

@@ -15,5 +15,5 @@
  */
 int main(void) {
 	app_init();  /* Initialize the robot components */
-	app_run();   /* Run the robot's main operations */
+	app_run();   /*	 Run the robot's main operations */
 }

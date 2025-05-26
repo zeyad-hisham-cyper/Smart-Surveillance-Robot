@@ -31,7 +31,7 @@ uint8 MQ2_getGasLevel(const MQ2_ConfigType *config_ptr) {
 	/* MQ2_MODE_DIGITAL */
 
 	else {
-		return GPIO_readPin(config_ptr->connection.digital_pin.port,
+		return !GPIO_readPin(config_ptr->connection.digital_pin.port,
 				config_ptr->connection.digital_pin.pin);
 	}
 }
