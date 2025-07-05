@@ -1,64 +1,38 @@
-# 🤖 Smart Surveillance Robot
+# Smart Surveillance Robot
 
-A multifunctional autonomous robot designed for indoor surveillance, obstacle avoidance, and hazard detection. This project integrates real-time environment monitoring and intelligent decision-making using ultrasonic sensors, gas/flame detection, and temperature sensing — all wrapped into a compact embedded system.
+## Abstract
+The Smart Surveillance Robot is an embedded autonomous system designed for real-time indoor monitoring, hazard detection, and obstacle avoidance. Powered by an ATmega32 microcontroller, the robot uses a range of sensors to navigate, detect gas leaks, fire, and abnormal temperature levels. Alerts are communicated via Bluetooth to a remote slave unit for user awareness.
 
----
+## System Design and Architecture
+The system is based on a master-slave architecture:
+- **Master Unit (Robot):** Performs all sensing, decision-making, navigation, and hazard alerting.
+- **Slave Unit (Human-Carried):** Receives real-time data from the robot and displays it on an LCD, with buzzer alerts for critical events.
 
-## 🚀 Features
+Key design features include:
+- Autonomous navigation using ultrasonic distance sensors.
+- Hazard detection (gas, flame, high temperature).
+- Real-time alerts displayed via LCD and buzzer.
+- Bluetooth communication between microcontrollers.
+- Efficient sensor multiplexing using the Input Capture Unit (ICU).
 
-- **Obstacle Avoidance**  
-  Uses three ultrasonic sensors to detect nearby objects and autonomously choose a clear path (forward, left, right).
+## Peripherals Used
+- **Microcontroller:** ATmega32 (8-bit AVR)
+- **Sensors:**
+  - 3× HC-SR04 Ultrasonic Sensors
+  - MQ2 Gas Sensor
+  - Flame Sensor
+  - LM35 Temperature Sensor
+  - LDR (Light Detection)
+- **Actuators:**
+  - 2× DC Motors (controlled via L298N motor driver)
+  - Buzzer
+  - LEDs
+  - 16×2 Character LCD
+- **Others:**
+  - Bluetooth Modules (HC-05/06)
 
-- **Multi-Hazard Detection**  
-  Equipped with temperature, gas (MQ2), flame, and light sensors to detect:
-  - Fire emergencies
-  - Gas leaks
-  - High temperature zones
-  - Lighting conditions
+## Protocol Used
+- **Bluetooth Serial Communication** with MAC-based identification for secure, one-to-one communication between the robot (master) and the human-carried unit (slave).
 
-- **Alert System**  
-  - On-board buzzer and LED indicators for visual/audible alerts  
-  - Priority handling for critical threats (e.g., stops movement on fire detection)
-
-- **Live Sensor Display**  
-  LCD screen shows real-time data: temperature, gas, flame, light, and distances from 3 directions.
-
-- **Efficient Sensor Multiplexing**  
-  Smart time-switching (multiplexing) of ultrasonic sensors using a shared Input Capture Unit (ICU) to reduce hardware load.
-
----
-
-## 🛠 Technologies Used
-
-| Module        | Component/Interface           |
-|---------------|-------------------------------|
-| Microcontroller | ATmega32 (AVR)             |
-| IDE/Compiler  | AVR-GCC, Atmel Studio / Eclipse AVR |
-| Simulation    | Proteus 8+                    |
-| Display       | 16x2 Character LCD            |
-| Sensing       | LM35, MQ2, Flame sensor, LDR  |
-| Distance      | HC-SR04 Ultrasonic Sensors (x3) |
-| Actuators     | 2 DC Motors with L298N        |
-
----
-
-## 🔧 System Architecture
-
-1. **Initialization Phase**  
-   Initializes all peripherals (LCD, sensors, motors, ICU, ADC, etc.)
-
-2. **Main Control Loop**  
-   - Continuously reads sensor values
-   - Decides movement based on obstacle data
-   - Scans environment for hazards
-   - Handles emergency alerts
-   - Displays current status on LCD
-
-3. **Interrupt-Based Ultrasonic Timing**  
-   Edge-detection interrupts manage distance measurements using a shared ICU.
-
----
-## 👥 Authors
-
-- [Amr](https://github.com/amryaser338)
-- [Zeyad](https://github.com/zeyad-hisham-cyper)
+## Conclusion
+This project demonstrates a robust, low-cost solution for autonomous surveillance and hazard detection using embedded systems. With efficient sensor handling, wireless communication, and real-time alerts, it is well-suited for smart home and safety applications.
